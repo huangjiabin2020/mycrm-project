@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--抄官网的-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.binge.mapper"/>
+    </bean>
+
+    <!--测试容器加载顺序-->
+    <context:component-scan base-package="com.binge.mapper"/>
+    <!--在common模块中已经加载了所有的properties文件-->
+    <!--<context:property-placeholder location="classpath:db.properties"/>-->
+
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--抄官网的-->
+    <bean class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean" id="sqlSessionFactory">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configuration">
+            <bean class="com.baomidou.mybatisplus.core.MybatisConfiguration">
+                <property name="logImpl" value="org.apache.ibatis.logging.log4j.Log4jImpl"/>
+            </bean>
+        </property>
+        <!-- mybatis-plus 分页插件 spring xml 方式 -->
+        <property name="plugins">
+            <array>
+                <bean class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor">
+                    <!--<property name="sqlParser" ref="自定义解析类、可以没有"/>-->
+                    <!--<property name="dialectClazz" value="自定义方言类、可以没有"/>-->
+                    <!-- COUNT SQL 解析.可以没有 -->
+                    <property name="countSqlParser" ref="countSqlParser"/>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <!--抄官网的-->
+    <bean id="countSqlParser"
+          class="com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize">
+        <!-- 设置为 true 可以优化部分 left join 的sql -->
+        <property name="optimizeJoin" value="true"/>
+    </bean>
+
+</beans>

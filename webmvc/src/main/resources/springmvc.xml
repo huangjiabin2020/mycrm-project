@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <context:component-scan base-package="com.binge.controller"/>
+    <context:component-scan base-package="com.binge.exception"/>
+    <context:component-scan base-package="com.binge.login"/>
+    <!--aspectj框架下的AOP写法-->
+    <context:component-scan base-package="com.binge.annotation"/>
+    <mvc:annotation-driven/>
+
+    <!--    不规范，web层只应加载controller相关的Bean
+        <import resource="classpath*:applicationContext-*.xml"/>
+        -->
+
+
+    <!--配置模板引擎，因为是web包下面的，所以配在web层-->
+    <bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!--模板的位置-->
+        <property name="templateLoaderPath" value="/WEB-INF/ftl/"/>
+        <property name="defaultEncoding" value="utf-8"/>
+    </bean>
+
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/login"/>
+            <bean class="com.binge.interceptor.JwtAuthorizationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+    <!--   &lt;!&ndash;原生的AOP写法，实现对自定义注解的拦截处理&ndash;&gt;
+       <bean class="com.binge.annotation.HasPermMethodInterceptor" id="hasPermMethodInterceptor"/>
+       <aop:config>
+           &lt;!&ndash;缺点是不能指定拦截加了自定义注解的方法&ndash;&gt;
+          <aop:advisor advice-ref="hasPermMethodInterceptor" pointcut="execution(* com.binge.controller.*.*(..))"/>
+       </aop:config>-->
+
+    <!--使用aspectj框架的AOP写法，被代理的controller一般是没有实现接口的，所以使用cglib代理-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>

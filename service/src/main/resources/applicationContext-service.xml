@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <context:component-scan base-package="com.binge.service"/>
+
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--开启事务-->
+    <tx:annotation-driven/>
+
+    <!--利用AOP补充事务 仅仅针对serviceImpl调用的单个方法开启事务，方法的组合还是没有事务，
+    除非在具体的serviceImpl中定义新的方法，操作都放在方法中，并加上@Transactional注解-->
+    <tx:advice transaction-manager="transactionManager" id="myAopAdvice">
+        <tx:attributes>
+            <tx:method name="get*"/>
+            <tx:method name="select*"/>
+            <tx:method name="remove*"/>
+            <tx:method name="update*"/>
+            <tx:method name="delete*"/>
+            <tx:method name="list"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <!--pointcut:对哪切  advice-ref:怎么切-->
+        <aop:advisor advice-ref="myAopAdvice"
+                     pointcut="execution(* com.baomidou.mybatisplus.extension.service.IService.*(..))"/>
+    </aop:config>
+</beans>

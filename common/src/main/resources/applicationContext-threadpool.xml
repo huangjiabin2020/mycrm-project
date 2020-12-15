@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--使用带任务调度的线程池-->
+    <bean id="taskExecutor" class="java.util.concurrent.ScheduledThreadPoolExecutor">
+        <constructor-arg value="30" name="corePoolSize"/>
+    </bean>
+</beans>
